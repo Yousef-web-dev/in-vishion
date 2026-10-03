@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import logo from "../assets/logo.jpg";
 
 // الـ id لازم يطابق id القسم في الصفحة (Hero = home, About = about, ...)
 const links = [
@@ -100,13 +101,8 @@ export default function Navbar() {
       }`}
     >
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:h-20 md:px-8">
-        <a
-          href="#home"
-          onClick={(e) => goTo(e, "home")}
-          className="text-2xl font-black tracking-tight md:text-3xl"
-        >
-          <span className="text-[#e11d2e] drop-shadow-[0_0_12px_rgba(225,29,46,0.6)]">IN</span>
-          <span className="ml-2 text-white">VISION</span>
+        <a href="#home" onClick={(e) => goTo(e, "home")} aria-label="IN VISION - Home">
+          <img src={logo} alt="IN VISION" className="h-11 w-auto  md:h-14 rounded-full" />
         </a>
 
         {/* لينكات الديسكتوب */}
