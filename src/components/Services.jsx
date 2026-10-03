@@ -94,19 +94,19 @@ const ease = [0.22, 1, 0.36, 1];
 function ServiceCard({ s, index }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.25 });
-  const base = (index % 3) * 0.15;
+  const base = (index % 3) * 0.1;
 
   const v = {
     card: {
-      hidden: { opacity: 0, y: 120, scale: 0.9 },
-      show: { opacity: 1, y: 0, scale: 1, transition: { duration: 1, delay: base, ease } },
+      hidden: { opacity: 0, y: 80, scale: 0.95 },
+      show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.8, delay: base, ease } },
     },
     curtain: {
       hidden: { scaleX: 0, originX: 0 },
       show: {
         scaleX: [0, 1, 0],
         originX: [0, 0, 1],
-        transition: { duration: 1.3, delay: base + 0.2, times: [0, 0.5, 1], ease: "easeInOut" },
+        transition: { duration: 1, delay: base + 0.15, times: [0, 0.5, 1], ease: "easeInOut" },
       },
     },
     image: {
@@ -115,22 +115,22 @@ function ServiceCard({ s, index }) {
         opacity: 1,
         scale: 1,
         transition: {
-          opacity: { delay: base + 0.85, duration: 0.01 },
-          scale: { delay: base + 0.85, duration: 1.6, ease },
+          opacity: { delay: base + 0.65, duration: 0.01 },
+          scale: { delay: base + 0.65, duration: 1.2, ease },
         },
       },
     },
     line: {
       hidden: { y: "115%" },
-      show: (i) => ({ y: 0, transition: { duration: 0.8, delay: base + 1.2 + i * 0.15, ease } }),
+      show: (i) => ({ y: 0, transition: { duration: 0.8, delay: base + 0.9 + i * 0.12, ease } }),
     },
     item: {
       hidden: { opacity: 0, x: -30 },
-      show: (i) => ({ opacity: 1, x: 0, transition: { duration: 0.6, delay: base + 1.3 + i * 0.12, ease } }),
+      show: (i) => ({ opacity: 1, x: 0, transition: { duration: 0.6, delay: base + 1 + i * 0.1, ease } }),
     },
     text: {
       hidden: { opacity: 0, y: 24 },
-      show: { opacity: 1, y: 0, transition: { duration: 0.7, delay: base + 1.1, ease } },
+      show: { opacity: 1, y: 0, transition: { duration: 0.7, delay: base + 0.85, ease } },
     },
   };
 
@@ -149,7 +149,9 @@ function ServiceCard({ s, index }) {
               src={s.image}
               alt={s.title}
               style={{ objectPosition: s.focus }}
-              className="parallax-img absolute inset-x-0 -top-[15%] h-[130%] w-full object-cover"
+              loading="lazy"
+              decoding="async"
+              className="parallax-img absolute inset-x-0 top-0 h-full w-full lg:-top-[15%] lg:h-[120%]"
             />
           </div>
         </motion.div>
@@ -158,7 +160,7 @@ function ServiceCard({ s, index }) {
 
         {!s.titleInImage && (
           <h3
-            style={{ color: s.titleColor, filter: `drop-shadow(0 0 14px ${s.glow})` }}
+            style={{ color: s.titleColor, textShadow: `0 0 14px ${s.glow}` }}
             className="absolute bottom-4 left-5 text-2xl font-extrabold uppercase leading-[1.05] tracking-wide md:text-3xl"
           >
             {s.titleLines.map((line, i) => (
@@ -235,7 +237,11 @@ export default function Services() {
         ease: "power3.out",
         scrollTrigger: { trigger: ".services-title", start: "top 85%" },
       });
-      // باراليكس أقوى للصور مع السكرول
+    }, root);
+
+    // باراليكس الصور: على الكمبيوتر بس (على الموبايل تقيل ومش بيبان)
+    const mm = gsap.matchMedia();
+    mm.add("(min-width: 1024px) and (hover: hover)", () => {
       gsap.utils.toArray(".parallax-img").forEach((img) => {
         gsap.fromTo(
           img,
@@ -247,13 +253,17 @@ export default function Services() {
               trigger: img.closest("article"),
               start: "top bottom",
               end: "bottom top",
-              scrub: 0.6,
+              scrub: true,
             },
           }
         );
       });
-    }, root);
-    return () => ctx.revert();
+    });
+
+    return () => {
+      ctx.revert();
+      mm.revert();
+    };
   }, []);
 
   return (
@@ -262,7 +272,7 @@ export default function Services() {
       ref={root}
       className="relative overflow-hidden bg-[#07070a] py-24 md:py-32"
     >
-      <div className="pointer-events-none absolute -left-32 top-1/3 h-96 w-96 rounded-full bg-[#e11d2e]/10 blur-[120px]" />
+      <div className="pointer-events-none absolute -left-32 top-1/3 h-[32rem] w-[32rem] rounded-full bg-[radial-gradient(circle,rgba(225,29,46,0.14)_0%,transparent_65%)]" />
 
       <div className="relative mx-auto max-w-7xl px-5 md:px-8">
         <div className="max-w-2xl">
