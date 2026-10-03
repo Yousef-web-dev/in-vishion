@@ -17,21 +17,38 @@ export default function Hero() {
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) return;
+
     const ctx = gsap.context(() => {
-      gsap.utils.toArray(".glow").forEach((el, i) => {
+      // حركة الإضاءة (transform فقط، من غير blur)
+      const tweens = gsap.utils.toArray(".glow").map((el, i) =>
         gsap.to(el, {
           x: gsap.utils.random(-70, 70),
           y: gsap.utils.random(-50, 50),
-          scale: gsap.utils.random(0.9, 1.3),
+          scale: gsap.utils.random(0.9, 1.2),
           duration: gsap.utils.random(5, 8),
           repeat: -1,
           yoyo: true,
           ease: "sine.inOut",
           delay: i * 0.4,
-        });
-      });
-      gsap.fromTo(bg.current, { scale: 1.12 }, { scale: 1, duration: 2.4, ease: "power3.out" });
+        })
+      );
+
+      // لما الـ Hero يخرج من الشاشة بنوقف الحركة، عشان السكرول ما يتقلش
+      const io = new IntersectionObserver(
+        ([entry]) => tweens.forEach((t) => t.paused(!entry.isIntersecting)),
+        { threshold: 0 }
+      );
+      io.observe(glows.current);
+
+      gsap.fromTo(
+        bg.current,
+        { scale: 1.12 },
+        { scale: 1, duration: 2.4, ease: "power3.out", clearProps: "willChange" }
+      );
+
+      return () => io.disconnect();
     }, glows);
+
     return () => ctx.revert();
   }, []);
 
@@ -45,33 +62,36 @@ export default function Hero() {
         ref={bg}
         src={heroImg}
         alt="Futuristic VR experience"
-        className="absolute top-3 h-full w-full object-center"
+        decoding="async"
+        fetchPriority="high"
+        className="absolute top-3 h-full w-full object-center will-change-transform"
       />
       <div className="absolute inset-0 bg-gradient-to-r from-[#07070a] via-[#07070a]/80 to-[#07070a]/30" />
       <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#07070a] to-transparent" />
 
-      <div className="glow pointer-events-none absolute -left-24 top-1/4 h-80 w-80 rounded-full bg-[#e11d2e]/30 blur-[110px]" />
-      <div className="glow pointer-events-none absolute bottom-10 right-1/4 h-72 w-72 rounded-full bg-fuchsia-600/25 blur-[110px]" />
-      <div className="glow pointer-events-none absolute right-10 top-20 h-64 w-64 rounded-full bg-cyan-500/20 blur-[110px]" />
+      {/* إضاءة بـ radial-gradient بدل blur-[110px]: نفس الشكل وأخف بكتير */}
+      <div className="glow pointer-events-none absolute -left-40 top-[10%] h-[32rem] w-[32rem] rounded-full bg-[radial-gradient(circle,rgba(225,29,46,0.35)_0%,transparent_65%)] will-change-transform" />
+      <div className="glow pointer-events-none absolute bottom-0 right-[15%] h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(circle,rgba(192,38,211,0.28)_0%,transparent_65%)] will-change-transform" />
+      <div className="glow pointer-events-none absolute -right-20 top-10 h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle,rgba(6,182,212,0.22)_0%,transparent_65%)] will-change-transform" />
 
       <div className="relative mx-auto w-full max-w-7xl px-5 md:px-8">
         <div className="max-w-2xl">
           <motion.p
             {...rise(0.1)}
-            className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm text-white/80 backdrop-blur"
+            className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/30 px-4 py-1.5 text-sm text-white/80"
           >
             <span className="h-2 w-2 rounded-full bg-[#e11d2e] shadow-[0_0_10px_#e11d2e]" />
             Creative Technology &amp; Marketing
           </motion.p>
 
-<motion.h1
-  {...rise(0.25)}
-  className="font-[Unbounded] text-3xl font-bold leading-[1.2] tracking-tight text-white sm:text-4xl lg:text-5xl"
->
-  We build worlds
-  <br />
-  people step into.
-</motion.h1>
+          <motion.h1
+            {...rise(0.25)}
+            className="font-[Unbounded] text-3xl font-bold leading-[1.2] tracking-tight text-white sm:text-4xl lg:text-5xl"
+          >
+            We build worlds
+            <br />
+            people step into.
+          </motion.h1>
 
           <motion.p
             {...rise(0.4)}
@@ -91,7 +111,7 @@ export default function Hero() {
             </a>
             <a
               href="#contact"
-              className="rounded-full border border-white/20 px-7 py-3.5 font-semibold text-white/90 backdrop-blur transition hover:border-white/50 hover:bg-white/10"
+              className="rounded-full border border-white/20 bg-black/20 px-7 py-3.5 font-semibold text-white/90 transition hover:border-white/50 hover:bg-white/10"
             >
               Get in Touch
             </a>
